@@ -4,7 +4,7 @@ import shutil
 import math
 import decimal
 
-from yrexample import read_example
+from yr.libyr import Yr
 
 weather_symbols = {'1' : '☀',
                    '2' : '☀☁',
@@ -62,6 +62,11 @@ weather_symbols = {'1' : '☀',
                    # Fog
                    '15': '▒'}
 
+def fetch_weatherdata(url):
+    weather = Yr(location_name=url, forecast_link='forecast_hour_by_hour')
+    return weather.dictionary
+
+    
 def pick_forecast(weatherdata):
     return weatherdata['weatherdata']['forecast']['tabular']['time']
     
@@ -104,11 +109,10 @@ def format_forecast(hours):
             format_row([space_for_zero(hour['precip']['value']) + ' ' for hour in hours], columns),
             format_row([pick_hour(hour['instant']) + ' ' for hour in hours], columns)]
 
+def print_forecast(lines):
+    print("\n".join(lines))
 
+if __name__ == '__main__':
+    print_forecast(format_forecast(pick_hour_data(fetch_weatherdata('Sweden/Scania/Kristianstad'))))
 
-
-hour_by_hour_forecast = read_example('mount_everest')
-hour_data = pick_hour_data(hour_by_hour_forecast)
-
-#print(hour_by_hour_forecast)
 
