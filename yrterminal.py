@@ -8,16 +8,67 @@ weather_symbols = {'1' : '☀',
                    '2' : '☀☁',
                    '3' : '☁☀',
                    '4' : '☁',
+
+                   # Showers
+                   '40': '☀☂', # Light
+                   '5' : '☀☂', 
+                   '41': '☀☂', # Heavy
+
+                   # Showers with thunderstorm
+                   '24': '☀☂☈', # Light
+                   '6' : '☀☂☈', 
+                   '25': '☀☂☈', # Heavy
+
+                   # Sleet showers
+                   '42': '☀☂❄', # Light
+                   '7' : '☀☂❄', 
+                   '43': '☀☂❄', # Heavy
+
+                   # Sleet showers with thunderstorm
+                   '26': '☀☂❄☈', # Light
+                   '20': '☀☂❄☈', 
+                   '27': '☀☂❄☈', # Heavy
+
+                   # Snow showers
+                   '44': '☀❄', # Light
+                   '8' : '☀❄', 
+                   '45': '☀❄', # Heavy
+
+                   # Snow showers with thunderstorm
+                   '28': '☀❄☈', # Light
+                   '21': '☀❄☈', 
+                   '29': '☀❄☈', # Heavy
+
+                   # Rain
+                   '46': '☂', # Light
+                   '9' : '☂',
+                   '10': '☂', # Heavy
+
+                   # Rain with thunderstorm
+
+                   # Sleet
+
+                   # Sleet with thunderstorm
+                   
+                   # Snow
+                   '49': '❄', # Light
+                   '13': '❄',
+                   '50': '❄', # Heavy
+
+                   # Snow with thunderstorm
+                   
+                   # Fog
                    '15': '▒'}
 
-
-def pick_hour_data(forecast):
-    innerforecast = forecast['weatherdata']['forecast']
-    hour_by_hour_data = innerforecast['tabular']['time']
+def pick_forecast(weatherdata):
+    return weatherdata['weatherdata']['forecast']['tabular']['time']
+    
+def pick_hour_data(weatherdata):
     return [{'instant': hour_data['@from'],
              'temperature': hour_data['temperature']['@value'],
-             'symbol': hour_data['symbol']['@numberEx']}
-            for hour_data in hour_by_hour_data]
+             'symbol': hour_data['symbol']['@numberEx'],
+             'precip': str(round(float(hour_data['precipitation']['@value'])))}
+            for hour_data in pick_forecast(weatherdata)]
 
 def pick_hour(instant):
     return instant[11:13]
@@ -33,9 +84,10 @@ def symbol_for(number):
 
 def format_forecast(hours):
     columns = shutil.get_terminal_size().columns
-    return [format_row([pick_hour(hour['instant']) + ' ' for hour in hours], columns),
-            format_row([symbol_for(hour['symbol']) + ' ' for hour in hours], columns),
-            format_row([hour['temperature'] + '°' for hour in hours], columns)]
+    return [format_row([symbol_for(hour['symbol']) + ' ' for hour in hours], columns),
+            format_row([hour['temperature'] + '°' for hour in hours], columns),
+            format_row([hour['precip'] + ' ' for hour in hours], columns),
+            format_row([pick_hour(hour['instant']) + ' ' for hour in hours], columns)]
 
 
 

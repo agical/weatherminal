@@ -18,10 +18,17 @@ def fetch_stockholm():
 
 def read_stockholm():
     return read_example('stockholm')
-    
+
+
 def fetch_mount_everest():
     fetch_and_save_example('Nepal/Other/Mount_Everest', 'mount_everest')
 
 def read_mount_everest():
     return read_example('mount_everest')
     
+
+def fetch_bergen():
+    fetch_and_save_example('Norway/Hordaland/Bergen/Bergen', 'bergen')
+
+def read_bergen():
+    return read_example('bergen')
