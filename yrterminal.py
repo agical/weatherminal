@@ -1,6 +1,7 @@
 
 import pickle
 import shutil
+import math
 
 from yrexample import read_example
 
@@ -29,7 +30,7 @@ weather_symbols = {'1' : '☀',
                    '20': '☀☂❄☈', 
                    '27': '☀☂❄☈', # Heavy
 
-                   # Snow showers
+                   # Snow showers█
                    '44': '☀❄', # Light
                    '8' : '☀❄', 
                    '45': '☀❄', # Heavy
@@ -67,7 +68,7 @@ def pick_hour_data(weatherdata):
     return [{'instant': hour_data['@from'],
              'temperature': hour_data['temperature']['@value'],
              'symbol': hour_data['symbol']['@numberEx'],
-             'precip': round(float(hour_data['precipitation']['@value']))}
+             'precip': int(round(float(hour_data['precipitation']['@value'])))}
             for hour_data in pick_forecast(weatherdata)]
 
 def pick_hour(instant):
@@ -82,6 +83,10 @@ def format_row(data_row, columns):
 def symbol_for(number):
     return weather_symbols[number] if number in weather_symbols else number
 
+def bar_for(number):
+    precip_bars = {0: ' ', 1: '▁', 2: '▂', 3: '▃', 4: '▄', 5: '▅', 6: '▆', 7: '▇', 8: '█'}
+    return precip_bars[max(0, min(8, math.ceil(number / 2)))]
+    
 def space_for_zero(number):
     return str(number) if number is not 0 else ''  
 
@@ -89,6 +94,7 @@ def format_forecast(hours):
     columns = shutil.get_terminal_size().columns
     return [format_row([symbol_for(hour['symbol']) + ' ' for hour in hours], columns),
             format_row([hour['temperature'] + '°' for hour in hours], columns),
+            format_row([bar_for(hour['precip']) + ' ' for hour in hours], columns),
             format_row([space_for_zero(hour['precip']) + ' ' for hour in hours], columns),
             format_row([pick_hour(hour['instant']) + ' ' for hour in hours], columns)]
 

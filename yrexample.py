@@ -32,3 +32,10 @@ def fetch_bergen():
 
 def read_bergen():
     return read_example('bergen')
+
+
+def fetch_orlando():
+    fetch_and_save_example('United_States/Florida/Orlando', 'orlando')
+
+def read_orlando():
+    return read_example('orlando')
