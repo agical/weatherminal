@@ -40,7 +40,7 @@ def format_forecast(hours):
 
 
 
-hour_by_hour_forecast = read_example()
+hour_by_hour_forecast = read_example('mount_everest')
 hour_data = pick_hour_data(hour_by_hour_forecast)
 
 #print(hour_by_hour_forecast)
