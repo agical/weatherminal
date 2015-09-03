@@ -4,6 +4,12 @@ import shutil
 
 from yrexample import read_example
 
+weather_symbols = {'1' : '☀',
+                   '2' : '☀☁',
+                   '3' : '☁☀',
+                   '4' : '☁',
+                   '15': '▒'}
+
 
 def pick_hour_data(forecast):
     innerforecast = forecast['weatherdata']['forecast']
@@ -22,11 +28,14 @@ def format_cell(data):
 def format_row(data_row, columns):
     return "".join([format_cell(cell) for cell in data_row])[0:columns]
 
+def symbol_for(number):
+    return weather_symbols[number] if number in weather_symbols else number
+
 def format_forecast(hours):
     columns = shutil.get_terminal_size().columns
-    return [format_row([pick_hour(hour['instant']) for hour in hours], columns),
-            format_row([hour['symbol'] for hour in hours], columns),
-            format_row([hour['temperature'] for hour in hours], columns)]
+    return [format_row([pick_hour(hour['instant']) + ' ' for hour in hours], columns),
+            format_row([symbol_for(hour['symbol']) + ' ' for hour in hours], columns),
+            format_row([hour['temperature'] + '°' for hour in hours], columns)]
 
 
 
