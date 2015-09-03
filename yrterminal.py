@@ -67,7 +67,7 @@ def pick_hour_data(weatherdata):
     return [{'instant': hour_data['@from'],
              'temperature': hour_data['temperature']['@value'],
              'symbol': hour_data['symbol']['@numberEx'],
-             'precip': str(round(float(hour_data['precipitation']['@value'])))}
+             'precip': round(float(hour_data['precipitation']['@value']))}
             for hour_data in pick_forecast(weatherdata)]
 
 def pick_hour(instant):
@@ -82,11 +82,14 @@ def format_row(data_row, columns):
 def symbol_for(number):
     return weather_symbols[number] if number in weather_symbols else number
 
+def space_for_zero(number):
+    return str(number) if number is not 0 else ''  
+
 def format_forecast(hours):
     columns = shutil.get_terminal_size().columns
     return [format_row([symbol_for(hour['symbol']) + ' ' for hour in hours], columns),
             format_row([hour['temperature'] + '°' for hour in hours], columns),
-            format_row([hour['precip'] + ' ' for hour in hours], columns),
+            format_row([space_for_zero(hour['precip']) + ' ' for hour in hours], columns),
             format_row([pick_hour(hour['instant']) + ' ' for hour in hours], columns)]
 
 
