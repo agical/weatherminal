@@ -9,7 +9,8 @@ import shutil
 def pick_hour_data(forecast):
     innerforecast = forecast['weatherdata']['forecast']
     hour_by_hour_data = innerforecast['tabular']['time']
-    return [(hour_data['@from'], hour_data['temperature']['@value'])
+    return [{'instant': hour_data['@from'],
+             'temperature': hour_data['temperature']['@value']}
             for hour_data in hour_by_hour_data]
 
 
@@ -27,10 +28,10 @@ def format_cell(data):
 def format_row(data_row, columns):
     return "".join([format_cell(cell) for cell in data_row])[0:columns]
 
-def format_forecast(hour_data):
+def format_forecast(hours):
     columns = shutil.get_terminal_size().columns
-    return [format_row([pick_hour(instant) for instant, temp in hour_data], columns),
-            format_row([temp for instant, temp in hour_data], columns)]
+    return [format_row([pick_hour(hour['instant']) for hour in hours], columns),
+            format_row([hour['temperature'] for hour in hours], columns)]
 
 
 
