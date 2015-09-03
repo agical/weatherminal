@@ -2,6 +2,7 @@
 import pickle
 import shutil
 
+    
 
 
 
@@ -23,10 +24,13 @@ def pick_hour(instant):
 def format_cell(data):
     return "{:>4}".format(data)
 
+def format_row(data_row, columns):
+    return "".join([format_cell(cell) for cell in data_row])[0:columns]
+
 def format_forecast(hour_data):
     columns = shutil.get_terminal_size().columns
-    
-    return "".join([format_cell(pick_hour(instant)) for instant, temp in hour_data])[0:columns]
+    return [format_row([pick_hour(instant) for instant, temp in hour_data], columns),
+            format_row([temp for instant, temp in hour_data], columns)]
 
 
 
