@@ -3,6 +3,7 @@ import pickle
 import shutil
 import math
 import decimal
+import argparse
 
 from yr.libyr import Yr
 
@@ -113,6 +114,9 @@ def print_forecast(lines):
     print("\n".join(lines))
 
 if __name__ == '__main__':
-    print_forecast(format_forecast(pick_hour_data(fetch_weatherdata('Sweden/Scania/Kristianstad'))))
-
-
+    parser = argparse.ArgumentParser(description='YR Terminal')
+    parser.add_argument('--location', '-l', required=True, help='Location name')
+    args = parser.parse_args()
+    print_forecast(format_forecast(pick_hour_data(fetch_weatherdata(args.location))))
+    
+    
