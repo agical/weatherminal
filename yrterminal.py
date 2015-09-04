@@ -2,7 +2,7 @@
 import pickle
 import shutil
 import math
-import decimal
+from decimal import Decimal, ROUND_HALF_UP
 import argparse
 
 from yr.libyr import Yr
@@ -72,7 +72,7 @@ def pick_forecast(weatherdata):
     return weatherdata['weatherdata']['forecast']['tabular']['time']
     
 def round_to_int(value):
-    return int(decimal.Decimal(value).quantize(decimal.Decimal('1.'), rounding=decimal.ROUND_HALF_UP))
+    return int(Decimal(value).quantize(Decimal('1.'), rounding=ROUND_HALF_UP))
     
 def pick_hour_data(weatherdata):
     return [{'instant': hour_data['@from'],
@@ -80,7 +80,9 @@ def pick_hour_data(weatherdata):
              'symbol': hour_data['symbol']['@numberEx'],
              'precip': {'value': round_to_int(hour_data['precipitation']['@value']),
                         'min': round_to_int(hour_data['precipitation']['@minvalue']) if '@minvalue' in hour_data['precipitation'] else 0,
-                        'max': round_to_int(hour_data['precipitation']['@maxvalue']) if '@maxvalue' in hour_data['precipitation'] else 0}}
+                        'max': round_to_int(hour_data['precipitation']['@maxvalue']) if '@maxvalue' in hour_data['precipitation'] else 0},
+             'wind': {'speed': round_to_int(hour_data['windSpeed']['@mps']),
+                      'direction': Decimal(hour_data['windDirection']['@deg'])}}
             for hour_data in pick_forecast(weatherdata)]
 
 def pick_hour(instant):
@@ -97,10 +99,15 @@ def symbol_for(number):
 
 def bar_for(number):
     precip_bars = {0: ' ', 1: '▁', 2: '▂', 3: '▃', 4: '▄', 5: '▅', 6: '▆', 7: '▇', 8: '█'}
-    return precip_bars[max(0, min(8, math.ceil(number / 2)))]
+    return precip_bars[max(0, min(8, number))]
     
 def space_for_zero(number):
-    return str(number) if number is not 0 else ''  
+    return str(number) if number is not 0 else ''
+
+def arrow_for(direction):
+    direction_arrows = {0: '↑', 1: '↗', 2: '→', 3: '↘', 4: '↓', 5: '↙', 6: '←',7: '↖' }
+    index = int((direction / Decimal('45')).quantize(Decimal('1.'), rounding=ROUND_HALF_UP)) % 8
+    return direction_arrows[index]
 
 def format_forecast(hours):
     columns = shutil.get_terminal_size().columns
@@ -108,6 +115,7 @@ def format_forecast(hours):
             format_row([hour['temperature'] + '°' for hour in hours], columns),
             format_row([bar_for(hour['precip']['min']) + bar_for(hour['precip']['value']) + bar_for(hour['precip']['max']) for hour in hours], columns),
             format_row([space_for_zero(hour['precip']['value']) + ' ' for hour in hours], columns),
+            format_row([str(hour['wind']['speed']) + arrow_for(hour['wind']['direction']) for hour in hours], columns),
             format_row([pick_hour(hour['instant']) + ' ' for hour in hours], columns)]
 
 def print_forecast(lines):
