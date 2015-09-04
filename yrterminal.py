@@ -116,7 +116,7 @@ def format_forecast(hours):
             format_row([bar_for(hour['precip']['min']) + bar_for(hour['precip']['value']) + bar_for(hour['precip']['max']) for hour in hours], columns),
             format_row([space_for_zero(hour['precip']['value']) + ' ' for hour in hours], columns),
             format_row([str(hour['wind']['speed']) + arrow_for(hour['wind']['direction']) for hour in hours], columns),
-            format_row([pick_hour(hour['instant']) + ' ' for hour in hours], columns)]
+            format_row([pick_hour(hour['instant']) + 'h' for hour in hours], columns)]
 
 def print_forecast(lines):
     print("\n".join(lines))
