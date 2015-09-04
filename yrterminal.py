@@ -7,45 +7,45 @@ import argparse
 
 from yr.libyr import Yr
 
-weather_symbols = {'1' : '☀',
-                   '2' : '☀☁',
-                   '3' : '☁☀',
+weather_symbols = {'1' : '☉',
+                   '2' : '☉☁',
+                   '3' : '☁☉',
                    '4' : '☁',
 
                    # Showers
-                   '40': '☀☂', # Light
-                   '5' : '☀☂', 
-                   '41': '☀☂', # Heavy
+                   '40': '☉☔', # Light
+                   '5' : '☉☔', 
+                   '41': '☉☔', # Heavy
 
                    # Showers with thunderstorm
-                   '24': '☀☂☈', # Light
-                   '6' : '☀☂☈', 
-                   '25': '☀☂☈', # Heavy
+                   '24': '☉☔☈', # Light
+                   '6' : '☉☔☈', 
+                   '25': '☉☔☈', # Heavy
 
                    # Sleet showers
-                   '42': '☀☂❄', # Light
-                   '7' : '☀☂❄', 
-                   '43': '☀☂❄', # Heavy
+                   '42': '☉☔❄', # Light
+                   '7' : '☉☔❄', 
+                   '43': '☉☔❄', # Heavy
 
                    # Sleet showers with thunderstorm
-                   '26': '☀☂❄☈', # Light
-                   '20': '☀☂❄☈', 
-                   '27': '☀☂❄☈', # Heavy
+                   '26': '☉☔❄☈', # Light
+                   '20': '☉☔❄☈', 
+                   '27': '☉☔❄☈', # Heavy
 
                    # Snow showers█
-                   '44': '☀❄', # Light
-                   '8' : '☀❄', 
-                   '45': '☀❄', # Heavy
+                   '44': '☉❄', # Light
+                   '8' : '☉❄', 
+                   '45': '☉❄', # Heavy
 
                    # Snow showers with thunderstorm
-                   '28': '☀❄☈', # Light
-                   '21': '☀❄☈', 
-                   '29': '☀❄☈', # Heavy
+                   '28': '☉❄☈', # Light
+                   '21': '☉❄☈', 
+                   '29': '☉❄☈', # Heavy
 
                    # Rain
-                   '46': '☂', # Light
-                   '9' : '☂',
-                   '10': '☂', # Heavy
+                   '46': '☔', # Light
+                   '9' : '☔',
+                   '10': '☔', # Heavy ☂
 
                    # Rain with thunderstorm
 
@@ -117,6 +117,7 @@ def format_forecast(hours):
             format_row([space_for_zero(hour['precip']['value']) + ' ' for hour in hours], columns),
             format_row([str(hour['wind']['speed']) + arrow_for(hour['wind']['direction']) for hour in hours], columns),
             format_row([pick_hour(hour['instant']) + 'h' for hour in hours], columns)]
+
 
 def print_forecast(lines):
     print("\n".join(lines))
