@@ -70,25 +70,23 @@ def pick_forecast(weatherdata):
 def round_to_int(value):
     return int(Decimal(value).quantize(Decimal('1.'), rounding=ROUND_HALF_UP))
     
-def pick_hour_data(weatherdata):
-    return [{'instant': hour_data['@from'],
-             'temperature': hour_data['temperature']['@value'],
-             'symbol': hour_data['symbol']['@numberEx'],
-             'precip': {'value': round_to_int(hour_data['precipitation']['@value']),
-                        'min': round_to_int(hour_data['precipitation']['@minvalue']) if '@minvalue' in hour_data['precipitation'] else 0,
-                        'max': round_to_int(hour_data['precipitation']['@maxvalue']) if '@maxvalue' in hour_data['precipitation'] else 0},
-             'wind': {'speed': round_to_int(hour_data['windSpeed']['@mps']),
-                      'direction': Decimal(hour_data['windDirection']['@deg'])}}
-            for hour_data in pick_forecast(weatherdata)]
+def extract_data(weatherdata):
+    return [{'instant': time_data['@from'],
+             'temperature': time_data['temperature']['@value'],
+             'symbol': time_data['symbol']['@numberEx'],
+             'precip': {'value': round_to_int(time_data['precipitation']['@value']),
+                        'min': round_to_int(time_data['precipitation']['@minvalue']) if '@minvalue' in time_data['precipitation'] else 0,
+                        'max': round_to_int(time_data['precipitation']['@maxvalue']) if '@maxvalue' in time_data['precipitation'] else 0},
+             'wind': {'speed': round_to_int(time_data['windSpeed']['@mps']),
+                      'direction': Decimal(time_data['windDirection']['@deg'])}}
+            for time_data in pick_forecast(weatherdata)]
+
+def extract_credit(weatherdata):
+    return {'text': "".join(weatherdata['weatherdata']['credit']['link']['@text']),
+            'link': weatherdata['weatherdata']['credit']['link']['@url']}
 
 def pick_hour(instant):
     return instant[11:13]
-
-def format_cell(data):
-    return "{:>4}".format(data)
-
-def format_row(data_row, columns):
-    return "".join([format_cell(cell) for cell in data_row])[0:columns]
 
 def symbol_for(number):
     return weather_symbols[number] if number in weather_symbols else number
@@ -105,15 +103,27 @@ def arrow_for(direction):
     index = int((direction / Decimal('45')).quantize(Decimal('1.'), rounding=ROUND_HALF_UP)) % 8
     return direction_arrows[index]
 
-def format_forecast(hours):
-    columns = shutil.get_terminal_size().columns
-    return [format_row([symbol_for(hour['symbol']) + ' ' for hour in hours], columns),
-            format_row([hour['temperature'] + '°' for hour in hours], columns),
-            format_row([bar_for(hour['precip']['min']) + bar_for(hour['precip']['value']) + bar_for(hour['precip']['max']) for hour in hours], columns),
-            format_row([space_for_zero(hour['precip']['value']) + ' ' for hour in hours], columns),
-            format_row([str(hour['wind']['speed']) + arrow_for(hour['wind']['direction']) for hour in hours], columns),
-            format_row([pick_hour(hour['instant']) + 'h' for hour in hours], columns)]
+def format_cell(data):
+    return "{:>4}".format(data)
 
+def format_row(data_row, columns):
+    return "".join([format_cell(cell) for cell in data_row])[0:columns]
+
+def format_rows(datapoints, credit):
+    columns = shutil.get_terminal_size().columns
+    return [format_row([symbol_for(dp['symbol']) + ' ' for dp in datapoints], columns),
+            format_row([dp['temperature'] + '°' for dp in datapoints], columns),
+            format_row([bar_for(dp['precip']['min']) + bar_for(dp['precip']['value']) + bar_for(dp['precip']['max']) for dp in datapoints], columns),
+            format_row([space_for_zero(dp['precip']['value']) + ' ' for dp in datapoints], columns),
+            format_row([str(dp['wind']['speed']) + arrow_for(dp['wind']['direction']) for dp in datapoints], columns),
+            format_row([pick_hour(dp['instant']) + 'h' for dp in datapoints], columns),
+            '',
+            credit['text'],
+            credit['link']]
+
+def format_forecast(forecast):
+    return format_rows(extract_data(forecast),
+                       extract_credit(forecast))
 
 def print_forecast(lines):
     print("\n".join(lines))
@@ -122,6 +132,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Terminal-based weather forecast from yr.no')
     parser.add_argument('--location', '-l', required=True, help='Location name in /-notation, eg: Sweden/Stockholm/Stockholm')
     args = parser.parse_args()
-    print_forecast(format_forecast(pick_hour_data(yrreader.forecast_for(args.location))))
+    forecast = yrreader.forecast_for(args.location)
+    print_forecast(format_forecast(forecast))
     
     
