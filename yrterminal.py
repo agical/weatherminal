@@ -163,8 +163,9 @@ def print_forecast(lines):
     print("\n".join(lines))
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Terminal-based weather forecast from yr.no')
-    parser.add_argument('--location', '-l', required=True, help='Location name in /-notation, eg: Sweden/Stockholm/Stockholm')
+    parser = argparse.ArgumentParser(description="A terminal-based weather forecast",
+                                     epilog="Weather forecast from yr.no, delivered by the Norwegian Meteorological Institute and the NRK")
+    parser.add_argument('location', metavar='LOCATION', help='Location name in /-notation, eg: Sweden/Stockholm/Stockholm')
     args = parser.parse_args()
     forecast = yrreader.forecast_for(args.location)
     print_forecast(format_forecast(forecast))
