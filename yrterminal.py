@@ -5,7 +5,7 @@ import math
 from decimal import Decimal, ROUND_HALF_UP
 import argparse
 
-from yr.libyr import Yr
+import yrreader
 
 weather_symbols = {'1' : '☉',
                    '2' : '☉☁',
@@ -63,10 +63,6 @@ weather_symbols = {'1' : '☉',
                    # Fog
                    '15': '▒'}
 
-def fetch_weatherdata(url):
-    weather = Yr(location_name=url, forecast_link='forecast_hour_by_hour')
-    return weather.dictionary
-
     
 def pick_forecast(weatherdata):
     return weatherdata['weatherdata']['forecast']['tabular']['time']
@@ -123,9 +119,9 @@ def print_forecast(lines):
     print("\n".join(lines))
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='YR Terminal')
-    parser.add_argument('--location', '-l', required=True, help='Location name')
+    parser = argparse.ArgumentParser(description='Terminal-based weather forecast from yr.no')
+    parser.add_argument('--location', '-l', required=True, help='Location name in /-notation, eg: Sweden/Stockholm/Stockholm')
     args = parser.parse_args()
-    print_forecast(format_forecast(pick_hour_data(fetch_weatherdata(args.location))))
+    print_forecast(format_forecast(pick_hour_data(yrreader.forecast_for(args.location))))
     
     
