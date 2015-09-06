@@ -143,31 +143,37 @@ def credit_rows(credit):
             credit['link']]
 
 
-def format_rows(datapoints, credit):
+def format_rows(datapoints, credit, args):
     columns = shutil.get_terminal_size().columns
     return [row
             for rows in [symbol_row(datapoints, columns),
-                         temperature_graph(datapoints, columns),
-#                         temperature_line(datapoints, columns),
+                         temperature_graph(datapoints, columns) if args['temperature'] == 'graph' else [],
+                         temperature_line(datapoints, columns) if args['temperature'] == 'line' else [],
                          precip_rows(datapoints, columns),
                          wind_row(datapoints, columns),
                          hour_row(datapoints, columns),
                          credit_rows(credit)]
             for row in rows]
 
-def format_forecast(forecast):
+def format_forecast(forecast, args):
     return format_rows(extract_data(forecast),
-                       extract_credit(forecast))
+                       extract_credit(forecast),
+                       args)
 
 def print_forecast(lines):
     print("\n".join(lines))
 
-if __name__ == '__main__':
+def argument_parser():
     parser = argparse.ArgumentParser(description="A terminal-based weather forecast",
                                      epilog="Weather forecast from yr.no, delivered by the Norwegian Meteorological Institute and the NRK")
     parser.add_argument('location', metavar='LOCATION', help='Location name in /-notation, eg: Sweden/Stockholm/Stockholm')
-    args = parser.parse_args()
-    forecast = yrreader.forecast_for(args.location)
-    print_forecast(format_forecast(forecast))
+    parser.add_argument('--temperature', choices=['graph', 'line', 'off'], default='graph', help='Different modes for displaying temperature')
+    return parser
+    
+if __name__ == '__main__':
+    args = argument_parser().parse_args()
+    print(args)
+    print_forecast(format_forecast(yrreader.forecast_for(args.location),
+                                   {'temperature': args.temperature}))
     
     
