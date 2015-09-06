@@ -127,9 +127,12 @@ def temperature_graph(datapoints, columns):
 def temperature_line(datapoints, columns):
     return [format_row([str(dp['temperature']) + '°' for dp in datapoints], columns)]
     
-def precip_rows(datapoints, columns):
-    return [format_row([bar_for(dp['precip']['min']) + bar_for(dp['precip']['value']) + bar_for(dp['precip']['max']) for dp in datapoints], columns),
-            format_row([space_for_zero(dp['precip']['value']) + ' ' for dp in datapoints], columns)]
+def precip_bars(datapoints, columns):
+    return [format_row([bar_for(dp['precip']['min']) + bar_for(dp['precip']['value']) + bar_for(dp['precip']['max']) for dp in datapoints], columns)]
+            
+
+def precip_values(datapoints, columns):
+    return [format_row([space_for_zero(dp['precip']['value']) + ' ' for dp in datapoints], columns)]
 
 def wind_row(datapoints, columns):
     return [format_row([str(dp['wind']['speed']) + arrow_for(dp['wind']['direction']) for dp in datapoints], columns)]
@@ -147,9 +150,10 @@ def format_rows(datapoints, credit, args):
     columns = shutil.get_terminal_size().columns
     return [row
             for rows in [symbol_row(datapoints, columns),
-                         temperature_graph(datapoints, columns) if args['temperature'] == 'graph' else [],
-                         temperature_line(datapoints, columns) if args['temperature'] == 'line' else [],
-                         precip_rows(datapoints, columns),
+                         temperature_graph(datapoints, columns) if args['temp'] == 'graph' else [],
+                         temperature_line(datapoints, columns) if args['temp'] == 'line' else [],
+                         precip_bars(datapoints, columns) if args['precip'] in ['all', 'bars'] else [],
+                         precip_values(datapoints, columns) if args['precip'] in ['all', 'values'] else [],
                          wind_row(datapoints, columns),
                          hour_row(datapoints, columns),
                          credit_rows(credit)]
@@ -168,12 +172,13 @@ def argument_parser():
                                      epilog="Weather forecast from yr.no, delivered by the Norwegian Meteorological Institute and the NRK")
     parser.add_argument('location', metavar='LOCATION', help='Location name in /-notation, eg: Sweden/Stockholm/Stockholm')
     parser.add_argument('--temperature', choices=['graph', 'line', 'off'], default='graph', help='Different modes for displaying temperature')
+    parser.add_argument('--precipitation', choices=['all', 'bars', 'values', 'off'], default='all', help='Different modes for displaying precipitation')
     return parser
     
 if __name__ == '__main__':
     args = argument_parser().parse_args()
-    print(args)
     print_forecast(format_forecast(yrreader.forecast_for(args.location),
-                                   {'temperature': args.temperature}))
+                                   {'temp': args.temperature,
+                                    'precip': args.precipitation}))
     
     
