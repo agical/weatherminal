@@ -145,9 +145,13 @@ def credit_rows(credit):
             credit['text'],
             credit['link']]
 
+def calculate_columns(max_cells):
+    terminal_columns = shutil.get_terminal_size().columns
+    cells = min(terminal_columns // 4, max_cells)
+    return cells * 4
 
 def format_rows(datapoints, credit, args):
-    columns = shutil.get_terminal_size().columns
+    columns = calculate_columns(args['max_cells'])
     return [row
             for rows in [symbol_row(datapoints, columns),
                          temperature_graph(datapoints, columns) if args['temp'] == 'graph' else [],
@@ -173,12 +177,14 @@ def argument_parser():
     parser.add_argument('location', metavar='LOCATION', help='Location name in /-notation, eg: Sweden/Stockholm/Stockholm')
     parser.add_argument('--temperature', choices=['graph', 'line', 'off'], default='graph', help='Different modes for displaying temperature')
     parser.add_argument('--precipitation', choices=['all', 'bars', 'values', 'off'], default='all', help='Different modes for displaying precipitation')
+    parser.add_argument('--datapoints', type=int, default=48, help='Number of datapoints to display in forecast')
     return parser
     
 if __name__ == '__main__':
     args = argument_parser().parse_args()
     print_forecast(format_forecast(yrreader.forecast_for(args.location),
                                    {'temp': args.temperature,
-                                    'precip': args.precipitation}))
+                                    'precip': args.precipitation,
+                                    'max_cells': args.datapoints}))
     
     
