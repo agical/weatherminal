@@ -121,8 +121,8 @@ def calculate_columns(max_cells):
     cells = min(terminal_columns // 4, max_cells)
     return cells * 4
 
-def format_rows(datapoints, credit, args):
-    columns = calculate_columns(args['max_cells'])
+def graph_format(datapoints, credit, max_datapoints, args):
+    columns = calculate_columns(max_datapoints)
     return [row
             for rows in [symbol_row(datapoints, columns),
                          temperature_graph(datapoints, columns) if args['temp'] == 'graph' else [],
@@ -134,5 +134,3 @@ def format_rows(datapoints, credit, args):
                          credit_rows(credit)]
             for row in rows]
 
-def graph_formatter(datapoints, credit, args):
-    return format_rows(datapoints, credit, args)

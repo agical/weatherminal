@@ -2,7 +2,7 @@ import argparse
 from decimal import Decimal, ROUND_HALF_UP
 
 import yrreader
-from formatters import graph_formatter
+import formatters 
 
     
 def pick_forecast(weatherdata):
@@ -28,8 +28,7 @@ def extract_credit(weatherdata):
 
 
 def formatter_for(format):
-    formatters = {'graph': graph_formatter}
-    return formatters[format]
+    return {'graph': formatters.graph_format}[format]
 
 def print_forecast(lines):
     print("\n".join(lines))
@@ -41,7 +40,7 @@ def argument_parser():
     parser.add_argument('--format', choices=['graph'], default='graph', help='Forecast format')
     parser.add_argument('--temperature', choices=['graph', 'line', 'off'], default='graph', help='Different modes for displaying temperature')
     parser.add_argument('--precipitation', choices=['all', 'bars', 'values', 'off'], default='all', help='Different modes for displaying precipitation')
-    parser.add_argument('--datapoints', type=int, default=48, help='Number of datapoints to display in forecast')
+    parser.add_argument('--max-datapoints', dest='max_datapoints', type=int, default=48, help='Maximum number of datapoints to display in forecast')
     return parser
 
     
@@ -51,8 +50,8 @@ if __name__ == '__main__':
     formatter = formatter_for(args.format)
     print_forecast(formatter.format(extract_datapoints(weatherdata),
                                     extract_credit(weatherdata),
+                                    args.max_datapoints,
                                     {'temp': args.temperature,
-                                     'precip': args.precipitation,
-                                     'max_cells': args.datapoints}))
+                                     'precip': args.precipitation}))
     
     
