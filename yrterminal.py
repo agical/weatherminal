@@ -28,7 +28,8 @@ def extract_credit(weatherdata):
 
 
 def formatter_for(format):
-    return {'graph': formatters.graph_format}[format]
+    return {'graph': formatters.graph_format,
+            'table': formatters.table_format}[format]
 
 def print_forecast(lines):
     print("\n".join(lines))
@@ -37,7 +38,7 @@ def argument_parser():
     parser = argparse.ArgumentParser(description="A terminal-based weather forecast",
                                      epilog="Weather forecast from yr.no, delivered by the Norwegian Meteorological Institute and the NRK")
     parser.add_argument('location', metavar='LOCATION', help='Location name in /-notation, eg: Sweden/Stockholm/Stockholm')
-    parser.add_argument('--format', choices=['graph'], default='graph', help='Forecast format')
+    parser.add_argument('--format', choices=['graph', 'table'], default='graph', help='Forecast format')
     parser.add_argument('--temperature', choices=['graph', 'line', 'off'], default='graph', help='Different modes for displaying temperature')
     parser.add_argument('--precipitation', choices=['all', 'bars', 'values', 'off'], default='all', help='Different modes for displaying precipitation')
     parser.add_argument('--max-datapoints', dest='max_datapoints', type=int, default=48, help='Maximum number of datapoints to display in forecast')
@@ -48,10 +49,10 @@ if __name__ == '__main__':
     args = argument_parser().parse_args()
     weatherdata = yrreader.forecast_for(args.location)
     formatter = formatter_for(args.format)
-    print_forecast(formatter.format(extract_datapoints(weatherdata),
-                                    extract_credit(weatherdata),
-                                    args.max_datapoints,
-                                    {'temp': args.temperature,
-                                     'precip': args.precipitation}))
+    print_forecast(formatter(extract_datapoints(weatherdata),
+                             extract_credit(weatherdata),
+                             args.max_datapoints,
+                             {'temp': args.temperature,
+                              'precip': args.precipitation}))
     
     

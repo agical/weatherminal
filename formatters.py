@@ -1,5 +1,6 @@
 import shutil
 from decimal import Decimal, ROUND_HALF_UP
+from functools import reduce
 
 weather_symbols = {'1' : '☉',
                    '2' : '☉☁',
@@ -134,3 +135,21 @@ def graph_format(datapoints, credit, max_datapoints, args):
                          credit_rows(credit)]
             for row in rows]
 
+def _table_rows(datapoints):
+    def format_row(result, value):
+        return result + '|{:>4}'.format(value)
+    return [reduce(format_row, 
+                   [pick_hour(dp['instant']) + 'h',
+                    symbol_for(dp['symbol']),
+                    str(dp['temperature']) + '°',
+                    space_for_zero(dp['precip']['value']),
+                    bar_for(dp['precip']['min']) + bar_for(dp['precip']['value']) + bar_for(dp['precip']['max']),
+                    str(dp['wind']['speed']) + arrow_for(dp['wind']['direction'])],
+                   '')
+            for dp in datapoints]
+    
+def table_format(datapoints, credit, max_datapoints, args):
+    return [row
+            for rows in [_table_rows(datapoints[0:max_datapoints]),
+                         credit_rows(credit)]
+            for row in rows]
