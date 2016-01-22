@@ -59,6 +59,9 @@ def hour_line(datapoints, columns):
     return [format_row([pick_hour(dp['instant']) + 'h' for dp in datapoints], columns)]
 
 
+def metadata_rows(metadata):
+    return ["Forecast created " + metadata['lastupdate'].isoformat(' '),
+            "Next forecast at " + metadata['nextupdate'].isoformat(' ')]
 
 def credit_rows(credit):
     return ['',
@@ -72,9 +75,10 @@ def calculate_columns(max_cells):
     cells = min(terminal_columns // CELL_SIZE, max_cells)
     return cells * CELL_SIZE
     
-def graph_format(datapoints, credit, max_datapoints, args):
+def graph_format(datapoints, metadata, credit, max_datapoints, args):
     columns = calculate_columns(max_datapoints)
-    return flatten_rows([symbol_row(datapoints, columns),
+    return flatten_rows([metadata_rows(metadata),
+                         symbol_row(datapoints, columns),
                          temperature_graph(datapoints, columns) if args['temp'] == 'graph' else [],
                          temperature_line(datapoints, columns) if args['temp'] == 'line' else [],
                          precip_bars(datapoints, columns) if args['precip'] in ['all', 'bars'] else [],
@@ -96,7 +100,8 @@ def _table_rows(datapoints):
                    '')
             for dp in datapoints]
     
-def table_format(datapoints, credit, max_datapoints, args):
-    return flatten_rows([_table_rows(datapoints),
+def table_format(datapoints, metadata, credit, max_datapoints, args):
+    return flatten_rows([metadata_rows(metadata),
+                         _table_rows(datapoints),
                          credit_rows(credit)])
 

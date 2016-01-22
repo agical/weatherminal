@@ -1,9 +1,13 @@
 import argparse
+from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
 
-import yrreader
 import formatters 
 
+from yr.libyr import Yr
+
+def forecast_for(location):
+    return Yr(location_name=location, forecast_link='forecast_hour_by_hour').dictionary
     
 def pick_forecast(weatherdata):
     return weatherdata['weatherdata']['forecast']['tabular']['time']
@@ -22,6 +26,11 @@ def extract_datapoints(weatherdata):
                       'direction': Decimal(time_data['windDirection']['@deg'])}}
             for time_data in pick_forecast(weatherdata)]
 
+def extract_metadata(weatherdata):
+    dateformat = '%Y-%m-%dT%H:%M:%S'
+    return {'lastupdate': datetime.strptime(weatherdata['weatherdata']['meta']['lastupdate'], dateformat),
+            'nextupdate': datetime.strptime(weatherdata['weatherdata']['meta']['nextupdate'], dateformat)}
+    
 def extract_credit(weatherdata):
     return {'text': "".join(weatherdata['weatherdata']['credit']['link']['@text']),
             'link': weatherdata['weatherdata']['credit']['link']['@url']}
@@ -36,7 +45,7 @@ def print_forecast(lines):
 
 def argument_parser():
     parser = argparse.ArgumentParser(description="A terminal-based weather forecast",
-                                     epilog="Weather forecast from yr.no, delivered by the Norwegian Meteorological Institute and the NRK")
+                                     epilog="Weather forecast from yr.no, delivered by the Norwegian Meteorological Institute and the NRK. Forecasts are fetched from yr.no via the python-yr library (https://github.com/wckd/python-yr). Forecasts are cached by python-yr to comply with required guidelines from YR. More information at http://om.yr.no/verdata/free-weather-data/ .")
     parser.add_argument('location', metavar='LOCATION', help='Location name in /-notation, eg: Sweden/Stockholm/Stockholm')
     parser.add_argument('--format', choices=['graph', 'table'], default='graph', help='Forecast format')
     parser.add_argument('--temperature', choices=['graph', 'line', 'off'], default='graph', help='Different modes for displaying temperature')
@@ -47,9 +56,10 @@ def argument_parser():
     
 if __name__ == '__main__':
     args = argument_parser().parse_args()
-    weatherdata = yrreader.forecast_for(args.location)
+    weatherdata = forecast_for(args.location)
     formatter = formatter_for(args.format)
     print_forecast(formatter(extract_datapoints(weatherdata),
+                             extract_metadata(weatherdata),
                              extract_credit(weatherdata),
                              args.max_datapoints,
                              {'temp': args.temperature,
