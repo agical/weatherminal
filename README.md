@@ -8,9 +8,10 @@ Forecasts are fetched from [yr.no](http://www.yr.no) via the [python-yr](https:/
 * Clone repository
 * Install dependencies with pip
 
-## Usage
+## Example Usage
 `python3 weatherminal.py Sweden/Stockholm/Stockholm`
 
 ## Dependecies
 * python-yr (https://github.com/wckd/python-yr)
 * xmltodict (used by python-yr)
+* A terminal with support for unicode will produce nicer results
