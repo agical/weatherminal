@@ -1,10 +1,11 @@
 import argparse
+import urllib
 from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
 
-import formatters 
-
 from yr.libyr import Yr
+
+import formatters 
 
 def forecast_for(location):
     return Yr(location_name=location, forecast_link='forecast_hour_by_hour').dictionary
@@ -56,13 +57,20 @@ def argument_parser():
     
 if __name__ == '__main__':
     args = argument_parser().parse_args()
-    weatherdata = forecast_for(args.location)
-    formatter = formatter_for(args.format)
-    print_forecast(formatter(extract_datapoints(weatherdata),
-                             extract_metadata(weatherdata),
-                             extract_credit(weatherdata),
-                             args.max_datapoints,
-                             {'temp': args.temperature,
-                              'precip': args.precipitation}))
+    try:
+        weatherdata = forecast_for(args.location)
+    except urllib.error.HTTPError:
+        print("Could not fetch forecast for " + args.location)
+    else:
+        formatter = formatter_for(args.format)
+        print_forecast(formatter(extract_datapoints(weatherdata),
+                                 extract_metadata(weatherdata),
+                                 extract_credit(weatherdata),
+                                 args.max_datapoints,
+                                 {'temp': args.temperature,
+                                  'precip': args.precipitation}))
+
+    
+
     
     
